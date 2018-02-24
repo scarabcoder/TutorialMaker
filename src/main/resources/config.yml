@@ -1,0 +1,12 @@
+writing-speed: 1 #Multiplier, set to 0.5 for half speed or 2 or double speed.
+tutorials:
+  example:
+    page1:
+      title: "&lOverview"
+      text: "This is the tutorial text. It should automatically wrap to the next line, and type text slowly. Click Next to continue."
+    page2:
+      title: "&lText Speed"
+      text: "By default, the text in every tutorial scrolls at a speed of '1'. You can change the multiplier in the config.yml."
+    page3:
+      title: "&lEnd"
+      text: "This concludes the example tutorial. Clicking 'finish' should end the tutorial."

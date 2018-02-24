@@ -1,0 +1,6 @@
+name: ${project.name}
+version: ${project.version}
+main: ${project.groupId}.tutorialmaker.${project.name}
+commands:
+  tutorial:
+    description: "Main command"
