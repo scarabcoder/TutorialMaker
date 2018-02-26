@@ -1,5 +1,8 @@
 package com.scarabcoder.tutorialmaker
 
+import org.bukkit.Location
+import org.bukkit.util.Vector
+
 /*
  * The MIT License
  *
@@ -25,6 +28,6 @@ package com.scarabcoder.tutorialmaker
  */
 data class Tutorial(val name: String, val pages: List<Page>){
 
-    data class Page(val title: String, val text: String)
+    data class Page(val title: String, val text: String, val location: Location?, val direction: Vector)
 
 }

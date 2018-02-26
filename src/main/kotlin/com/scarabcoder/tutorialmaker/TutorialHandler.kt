@@ -2,8 +2,11 @@ package com.scarabcoder.tutorialmaker
 
 import org.bukkit.ChatColor
 import org.bukkit.Location
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler
+import org.bukkit.event.Listener
+import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import java.util.*
 import kotlin.collections.ArrayList
@@ -32,12 +35,10 @@ import kotlin.collections.HashMap
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-object PlayerHandler {
+object TutorialHandler : Listener {
 
     private val tutorials: HashMap<String, Tutorial> = HashMap()
-
-    private val playersInTutorial: HashMap<UUID, String> = HashMap()
-    private val previousLocations: HashMap<UUID, Location> = HashMap()
+    private val sessions: HashMap<UUID, TutorialSession> = HashMap()
 
     init {
         val cfgSection = TutorialMaker.getPlugin().config.getConfigurationSection("tutorials")
@@ -45,32 +46,56 @@ object PlayerHandler {
             val tutorialSection = cfgSection.getConfigurationSection(key)
             val pages: MutableList<Tutorial.Page> = ArrayList()
             for(page in tutorialSection.getKeys(false)){
+                val loc = tutorialSection.get(page + ".location") as Location
+                val dir = tutorialSection.getVector(page + ".direction")
                 pages.add(Tutorial.Page(ChatColor.translateAlternateColorCodes('&', tutorialSection.getString(page + ".title")),
-                        ChatColor.translateAlternateColorCodes('&', tutorialSection.getString(page + ".text"))))
+                        ChatColor.translateAlternateColorCodes('&', tutorialSection.getString(page + ".text")), loc, dir))
             }
             tutorials.put(key, Tutorial(key, pages))
         }
     }
 
+    fun saveTutorial(tutorial: Tutorial){
+        val cfg = TutorialMaker.getPlugin().config
+        val cfgSection = cfg.createSection("tutorials." + tutorial.name)
+        for((x, page) in tutorial.pages.withIndex()) {
+            val pageSection = cfgSection.createSection("page$x")
+            pageSection.set("text", page.text)
+            pageSection.set("title", page.title)
+            pageSection.set("direction", page.direction)
+            pageSection.set("location", page.location)
+        }
+        TutorialMaker.getPlugin().saveConfig()
+    }
+
+    fun registerTutorial(tutorial: Tutorial) {
+        tutorials.put(tutorial.name, tutorial)
+    }
+
     fun isInTutorial(player: Player): Boolean {
-        return playersInTutorial.containsKey(player.uniqueId)
+        return sessions.containsKey(player.uniqueId)
     }
 
     fun startTutorial(player: Player, tutorial: Tutorial){
-        playersInTutorial.put(player.uniqueId, tutorial.name)
-        previousLocations.put(player.uniqueId, player.location)
+        sessions.put(player.uniqueId, TutorialSession(player, tutorial))
     }
 
     fun getTutorial(name: String): Tutorial? {
         return tutorials[name]
     }
 
-    fun page(player: Player, page: Tutorial.Page){
-
+    fun getSession(player: Player): TutorialSession? {
+        return sessions[player.uniqueId]
     }
 
     fun endTutorial(player: Player) {
-        playersInTutorial.remove(player.uniqueId)
+        sessions.remove(player.uniqueId)
+    }
+
+    @EventHandler
+    private fun registerPacketListener(e: PlayerJoinEvent){
+        val channel = (e.player as CraftPlayer).handle.playerConnection.networkManager.channel
+        channel.pipeline().addBefore("packet_handler", "PacketInjector", PacketListener(e.player))
     }
 
     @EventHandler

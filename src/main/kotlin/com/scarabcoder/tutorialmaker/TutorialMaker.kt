@@ -1,5 +1,6 @@
 package com.scarabcoder.tutorialmaker
 
+import net.novapixelnetwork.commandapi.CommandRegistry
 import org.bukkit.Bukkit
 import org.bukkit.plugin.java.JavaPlugin
 
@@ -33,7 +34,9 @@ class TutorialMaker: JavaPlugin() {
         config.options().copyDefaults(true)
         saveDefaultConfig()
 
-        getCommand("tutorial").executor = TutorialCommand()
+        val tutCmd = TutorialCommand()
+        CommandRegistry.registerCommand(tutCmd)
+        Bukkit.getPluginManager().registerEvents(TutorialHandler, this)
     }
 
     companion object {

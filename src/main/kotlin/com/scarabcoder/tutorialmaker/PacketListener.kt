@@ -1,7 +1,8 @@
 package com.scarabcoder.tutorialmaker
 
-import net.novapixelnetwork.commandapi.Command
-import net.novapixelnetwork.commandapi.CommandSection
+import io.netty.channel.ChannelDuplexHandler
+import io.netty.channel.ChannelHandlerContext
+import net.minecraft.server.v1_12_R1.PacketPlayInSteerVehicle
 import org.bukkit.entity.Player
 
 /*
@@ -27,16 +28,22 @@ import org.bukkit.entity.Player
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-class TutorialCommand: CommandSection("tutorial") {
+class PacketListener(val player: Player): ChannelDuplexHandler() {
 
-    override fun onCommand(player: Player) {
+    private var lastMove: Long = 0
 
+    override fun channelRead(ctx: ChannelHandlerContext?, msg: Any?) {
+        ctx!!
+        msg!!
+
+        if(msg::class.java.simpleName != "PacketPlayInSteerVehicle" || !TutorialHandler.isInTutorial(player) || System.currentTimeMillis() - lastMove < 150){ super.channelRead(ctx, msg); return }
+        msg as PacketPlayInSteerVehicle
+        val session = TutorialHandler.getSession(player)!!
+        if(msg.a() != 0.toFloat()) {
+            if (msg.a() < 0) session.nextPage() else session.prevPage()
+            lastMove = System.currentTimeMillis()
+        }
+        super.channelRead(ctx, msg)
     }
-
-    @Command
-    fun create(sender: Player, name: String){
-
-    }
-
 
 }
