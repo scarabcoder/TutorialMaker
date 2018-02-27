@@ -36,10 +36,44 @@ class TutorialCommand: CommandSection("tutorial") {
 
     @Command
     fun create(sender: Player, name: String){
-        if(TutorialHandler.isInTutorial(sender)){
-            sender.sendMessage("${ChatColor.RED}")
+        if(EditorManager.isEditing(sender)){
+            sender.sendMessage("${ChatColor.RED}You must save the current tutorial before creating a new one!")
             return
         }
+        if(TutorialHandler.getTutorial(name) != null){
+            sender.sendMessage("${ChatColor.RED}Tutorial with that name already exists!")
+            return
+        }
+
+        EditorManager.newEditSession(name, sender)
+        sender.sendMessage("${ChatColor.GREEN}Created tutorial $name. Create pages with /newpage <title>, save with /tutorial save.")
+
+    }
+
+    @Command
+    fun save(sender: Player){
+        if(!EditorManager.isEditing(sender)){
+            sender.sendMessage("${ChatColor.RED}You are not editing a tutorial!")
+            return
+        }
+        EditorManager.endEditSession(sender)
+        sender.sendMessage("${ChatColor.GREEN}Saved & registered tutorial.")
+    }
+
+    @Command
+    fun start(sender: Player, name: String){
+        if(TutorialHandler.isInTutorial(sender)){
+            sender.sendMessage("${ChatColor.RED}Please exit your current tutorial before starting a new one.")
+            return
+        }
+        val tut = TutorialHandler.getTutorial(name)
+        if(tut == null){
+            sender.sendMessage("${ChatColor.RED}Tutorial $name not found!")
+            return
+        }
+
+        TutorialHandler.startTutorial(sender, tut)
+
     }
 
 

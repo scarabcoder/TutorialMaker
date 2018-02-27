@@ -65,6 +65,7 @@ object TutorialHandler : Listener {
             pageSection.set("direction", page.direction)
             pageSection.set("location", page.location)
         }
+        registerTutorial(tutorial)
         TutorialMaker.getPlugin().saveConfig()
     }
 
