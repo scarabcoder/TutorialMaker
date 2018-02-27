@@ -1,9 +1,7 @@
 package com.scarabcoder.tutorialmaker
 
-import io.netty.channel.ChannelDuplexHandler
-import io.netty.channel.ChannelHandlerContext
-import net.minecraft.server.v1_12_R1.PacketPlayInSteerVehicle
 import org.bukkit.entity.Player
+import java.util.*
 
 /*
  * The MIT License
@@ -28,22 +26,21 @@ import org.bukkit.entity.Player
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-class PacketListener(val player: Player): ChannelDuplexHandler() {
+object EditorManager {
 
-    private var lastMove: Long = 0
+    private val editors: HashMap<UUID, Tutorial> = HashMap()
 
-    override fun channelRead(ctx: ChannelHandlerContext?, msg: Any?) {
-        ctx!!
-        msg!!
+    fun isEditing(player: Player): Boolean = editors.containsKey(player.uniqueId)
 
-        if(msg::class.java.simpleName != "PacketPlayInSteerVehicle" || !TutorialHandler.isInTutorial(player) || System.currentTimeMillis() - lastMove < 150){ super.channelRead(ctx, msg); return }
-        msg as PacketPlayInSteerVehicle
-        val session = TutorialHandler.getSession(player)!!
-        if(msg.a() != 0.toFloat()) {
-            if (msg.a() < 0) session.nextPage() else session.prevPage()
-            lastMove = System.currentTimeMillis()
-        }
-        super.channelRead(ctx, msg)
+    fun newEditSession(name: String, player: Player) = editors.put(player.uniqueId, Tutorial(name, ArrayList()))
+
+    fun getEditing(player: Player): Tutorial? = editors[player.uniqueId]
+
+    fun endEditSession(player: Player) {
+        if(!isEditing(player)) return
+        TutorialHandler.saveTutorial(editors[player.uniqueId]!!)
+        editors.remove(player.uniqueId)
     }
+
 
 }

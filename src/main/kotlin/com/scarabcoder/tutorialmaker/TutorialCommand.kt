@@ -2,12 +2,13 @@ package com.scarabcoder.tutorialmaker
 
 import net.novapixelnetwork.commandapi.Command
 import net.novapixelnetwork.commandapi.CommandSection
+import org.bukkit.ChatColor
 import org.bukkit.entity.Player
 
 /*
  * The MIT License
  *
- * Copyright 2018 Nova Pixel Network
+ * Copyright 2018 Nicholas Harris
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +36,10 @@ class TutorialCommand: CommandSection("tutorial") {
 
     @Command
     fun create(sender: Player, name: String){
-
+        if(TutorialHandler.isInTutorial(sender)){
+            sender.sendMessage("${ChatColor.RED}")
+            return
+        }
     }
 
 

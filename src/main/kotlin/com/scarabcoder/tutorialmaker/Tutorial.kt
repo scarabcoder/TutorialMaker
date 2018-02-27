@@ -6,7 +6,7 @@ import org.bukkit.util.Vector
 /*
  * The MIT License
  *
- * Copyright 2018 Nova Pixel Network
+ * Copyright 2018 Nicholas Harris
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -26,7 +26,7 @@ import org.bukkit.util.Vector
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-data class Tutorial(val name: String, val pages: List<Page>){
+data class Tutorial(val name: String, val pages: MutableList<Page>){
 
     data class Page(val title: String, val text: String, val location: Location?, val direction: Vector)
 
